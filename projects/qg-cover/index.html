@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="QG-Cover: Quality-Gated Coverage for 3D Gaussian Splatting from Casual Captures (WACV 2027)">
+  <meta name="keywords" content="3D Gaussian Splatting, view selection, casual capture, no-reference image quality, submodular, WACV">
+  <meta property="og:title" content="QG-Cover: Quality-Gated Coverage for 3DGS from Casual Captures">
+  <meta property="og:description" content="Training-free quality-gated view selection for 3D Gaussian Splatting. WACV 2027.">
+  <meta property="og:image" content="static/images/teaser.jpg">
+  <title>QG-Cover</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="static/css/katex.min.css">
+  <script defer src="static/js/katex.min.js"></script>
+  <script defer src="static/js/auto-render.min.js"
+          onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
+
+  <style>
+    :root { --accent:#1f9d72; --accent-soft:#e8f6f0; --red:#d64545; --ink:#1e293b; --muted:#475569; }
+    body { font-family: Inter, "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif; color: var(--ink); background:#fff; }
+    .title, .subtitle { font-family: Inter, sans-serif; }
+    .publication-title { font-weight: 800; line-height: 1.2; color: var(--ink); }
+    .publication-title .brand { color: var(--accent); }
+    .publication-authors { font-size: 1.1rem; margin-top: .4rem; }
+    .publication-authors a { color: #3273dc; }
+    .author-block { display: inline-block; margin: 0 .35rem; }
+    .venue { font-weight: 700; font-size: 1.15rem; margin-top: .9rem; }
+    .link-block { display:inline-block; margin: .3rem .2rem; }
+    .button.is-dark { background:#1e293b; }
+    .teaser { padding-top: 1.5rem; }
+    .teaser img, .figure img { width: 100%; height: auto; border-radius: 6px; }
+    .caption { color: var(--muted); font-size: .95rem; margin-top: .75rem; text-align: center; }
+    .section-title { font-weight: 700; position: relative; padding-bottom: .6rem; }
+    .section-title::after { content:""; position:absolute; left:50%; bottom:0; width:56px; height:3px; margin-left:-28px; border-radius:3px; background: linear-gradient(90deg, var(--accent), #6ee7b7); }
+    .content p { text-align: justify; line-height: 1.75; }
+    .hero.is-light { background:#f8fafc; }
+    .stats { display:grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1.25rem; }
+    .stat { background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:1rem .75rem; text-align:center; }
+    .stat .num { font-size:1.7rem; font-weight:800; color: var(--accent); line-height:1.1; }
+    .stat .lbl { font-size:.85rem; color: var(--muted); margin-top:.35rem; }
+    .pill-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1.25rem 0; }
+    .pill { border-radius:10px; padding:1rem; background: var(--accent-soft); border:1px solid #c7ebdc; }
+    .pill h4 { font-weight:700; margin-bottom:.35rem; color:#14684c; }
+    .pill p { font-size:.93rem; text-align:left !important; line-height:1.6 !important; margin:0; }
+    .table-wrap { overflow-x:auto; max-width:100%; }
+    .column, .container, .content { min-width:0; }
+    .stats > *, .pill-grid > * { min-width:0; }
+    .hero > .container { width:100%; }
+    table.res { width:100%; font-size:.9rem; font-variant-numeric: tabular-nums; }
+    table.res th, table.res td { text-align:center !important; vertical-align: middle !important; padding:.4em .6em !important; }
+    table.res td:first-child, table.res th:first-child { text-align:left !important; }
+    table.res thead th { background:#f1f5f9; }
+    .best { background:#fde68a; font-weight:700; }
+    .second { background:#e5e7eb; }
+    .mean-row td { font-weight:700; border-top:2px solid #cbd5e1 !important; }
+    .katex-display { overflow-x:auto; overflow-y:hidden; padding:.25rem 0; }
+    .table-wrap table { min-width: 640px; }
+    pre.bib { background:#f1f5f9; border-radius:8px; font-size:.85rem; white-space:pre; overflow-x:auto; }
+    .footer { background:#fff; padding: 2rem 1.5rem 3rem; }
+    @media (max-width: 768px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .pill-grid { grid-template-columns: 1fr; }
+      .publication-title { font-size: 1.7rem !important; }
+      .content p { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ================= Header ================= -->
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop has-text-centered">
+      <h1 class="title is-2 publication-title">
+        <span class="brand">QG-Cover</span>: Quality-Gated Coverage for<br>3D Gaussian Splatting from Casual Captures
+      </h1>
+      <div class="publication-authors">
+        <span class="author-block"><a href="https://github.com/wooni-github" target="_blank">Daewoon Kim</a></span>,
+        <span class="author-block">I-gil Kim<sup>*</sup></span>
+      </div>
+      <div class="publication-authors" style="font-size:1rem;">
+        <span class="author-block">AX Future Technology Institute, KT Corporation</span>
+      </div>
+      <div style="font-size:.85rem;color:#64748b;margin-top:.2rem;"><sup>*</sup>Corresponding author</div>
+      <div class="venue">WACV 2027</div>
+
+      <div style="margin-top:1rem;">
+        <span class="link-block">
+          <a href="static/pdfs/QG-Cover_WACV2027.pdf" target="_blank" class="button is-small is-rounded is-dark">
+            <span class="icon"><i class="fas fa-file-pdf"></i></span><span>Paper</span>
+          </a>
+        </span>
+        <!-- 공개되면 href를 채우고 주석을 해제하세요
+        <span class="link-block">
+          <a href="https://arxiv.org/abs/XXXX.XXXXX" target="_blank" class="button is-small is-rounded is-dark">
+            <span class="icon"><i class="fas fa-book-open"></i></span><span>arXiv</span>
+          </a>
+        </span>
+        <span class="link-block">
+          <a href="static/pdfs/supplementary.pdf" target="_blank" class="button is-small is-rounded is-dark">
+            <span class="icon"><i class="fas fa-file-lines"></i></span><span>Supplementary material</span>
+          </a>
+        </span>
+        -->
+        <span class="link-block">
+          <a href="#bibtex" class="button is-small is-rounded is-dark">
+            <span class="icon"><i class="fas fa-quote-right"></i></span><span>BibTeX</span>
+          </a>
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Teaser ================= -->
+<section class="hero teaser">
+  <div class="container is-max-widescreen">
+    <div class="hero-body" style="padding-top:0;">
+      <img src="static/images/teaser.jpg" alt="QG-Cover teaser: FVS, Random and QG-Cover selections on counter with held-out renders and budget sweep">
+      <p class="caption" style="max-width:900px;margin-left:auto;margin-right:auto;">
+        On a casual, quality-varying capture, coverage-only <b style="color:var(--red)">FVS</b> keeps 14/40 corrupted views while our quality gate
+        rejects them all (0/40). On a held-out view FVS renders at 16.3&nbsp;dB and <b style="color:var(--accent)">QG-Cover</b> at 25.3&nbsp;dB;
+        on the corrupted pool every selector peaks below 100% of the views, and gated coverage dominates FVS at every budget.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Abstract ================= -->
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3 section-title">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Casual, handheld capture for novel view synthesis yields image pools that are both highly redundant and quality-varying,
+            containing underexposed, noisy, or motion/defocus-blurred frames. We study view selection for 3D Gaussian Splatting (3DGS)
+            under a fixed training-view budget and show that coverage-only selection is unreliable in this regime: Farthest-View Sampling
+            (FVS) favors geometrically extreme viewpoints, which in casual capture coincide with degraded frames, so it can even
+            underperform random selection. A training-free no-reference quality gate placed in front of coverage selection recovers
+            <b>+1.69&nbsp;dB</b> over FVS on seven mip-NeRF-360 scenes with 30% corrupted frames at a 40%-of-pool budget;
+            Quality-Gated Coverage (<b>QG-Cover</b>), a quality-weighted submodular facility-location objective that covers every viewpoint
+            while favoring high-quality source views, raises the gain to <b>+1.95&nbsp;dB</b>, leads at every budget tier, and degrades
+            gracefully when clean frames are scarce. That same subset even beats training on the whole corrupted pool, yet still lands
+            1.57&nbsp;dB below clean-pool training: selection is damage control, not free information. On 26 real casual captures
+            (nerfbusters, DL3DV) QG-Cover beats FVS on every scene at the tightest budget tier, and our gate independently flags a
+            comparable fraction of their frames as low quality&mdash;this regime arises naturally in casual capture rather than by our
+            construction. Retraining all 33 scenes at the standard 30k 3DGS schedule preserves the matched-budget advantage, while the
+            weaker subset-beats-pool result is schedule- and domain-sensitive; we report where it breaks.
+          </p>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="num">+1.95 dB</div><div class="lbl">over FVS at K=40%<br>(mip-NeRF-360, 30% junk)</div></div>
+          <div class="stat"><div class="num">26 / 26</div><div class="lbl">real casual scenes<br>beat FVS at K=40%</div></div>
+          <div class="stat"><div class="num">33 / 33</div><div class="lbl">scenes beat random<br>at K=40%</div></div>
+          <div class="stat"><div class="num">&lt; 0.2 s</div><div class="lbl">selection time<br>(N ≤ 1000, training-free)</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Motivation ================= -->
+<section class="section hero is-small">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3 section-title">Why Coverage Alone Fails</h2>
+        <div class="content has-text-justified">
+          <p>
+            Consider a phone video orbiting a plant. Farthest-View Sampling seeks the <i>K</i> maximally spread camera centers&mdash;but the
+            geometrically extreme viewpoints are captured near the orbit's direction changes, where hand motion, exposure and focus are
+            least stable. FVS therefore systematically over-selects the blurriest frames (on nerfbusters/<i>century</i> it places 18 of 40
+            picks in the blurriest 30%, versus 8 for QG-Cover), and 3DGS trained on that subset floats and smears texture.
+            Prior view-acquisition signals&mdash;information gain, geometric coverage, render quality&mdash;all assume every candidate is a
+            valid image. We show that assumption is load-bearing: FVS falls below uniform random selection on up to 13 of our 33 scenes.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Method ================= -->
+<section class="section hero is-small">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column">
+        <h2 class="title is-3 section-title">Method Overview</h2>
+        <div class="figure" style="margin-top:1.25rem;">
+          <img src="static/images/method.jpg" alt="Overview of QG-Cover pipeline">
+        </div>
+        <div class="content has-text-justified" style="max-width:860px;margin:1.25rem auto 0;">
+          <p>
+            A casual pool mixes clean and junk frames. A <b>training-free no-reference gate</b> scores each view from luminance
+            \(L\), Tenengrad sharpness \(S\) and high-frequency noise \(N\). Each feature is robustly z-scored within the scene
+            (median/MAD) and turned into one-sided corruption evidence, so no benign feature can cancel evidence from another:
+          </p>
+          $$\mathrm{corr}_i = \mathrm{ReLU}\big(-z(L_i)\big) + \mathrm{ReLU}\big(-z(S_i)\big) + \mathrm{ReLU}\big(z(N_i)\big),\qquad q_i = -\,\mathrm{corr}_i .$$
+          <p>
+            An Otsu threshold on \(\{q_i\}\) gives a scene-adaptive hard gate (<b>Detect+Cover</b>: FVS over the gated-clean views).
+            <b>QG-Cover</b> instead folds quality into a single quality-weighted facility-location objective that must cover
+            <i>every</i> pool viewpoint, using only selected views as sources:
+          </p>
+          $$F(S) = \sum_{v \in V} \max_{s \in S} \; w_s \, k(v, s), \qquad k(v,s) = \exp\!\big(-\lVert c_v - c_s \rVert^2 / 2\sigma^2\big).$$
+          <p>
+            A corrupted viewpoint is still a coverage target, but it is best covered by a nearby clean view rather than by its own
+            low-quality capture&mdash;<i>&ldquo;keep the viewpoint, swap the source.&rdquo;</i> The kernel bandwidth \(\sigma\) is the
+            median nearest-neighbor camera spacing, so there is no balancing hyperparameter. \(F\) is monotone submodular, and greedy
+            selection attains a \((1-1/e)\) guarantee on the coverage objective in \(O(KN^2)\) time.
+          </p>
+        </div>
+        <div class="pill-grid">
+          <div class="pill"><h4>Training-free</h4><p>Three classical image statistics; no learned model, no per-scene or per-dataset tuning.</p></div>
+          <div class="pill"><h4>Trainer-agnostic</h4><p>A pre-processing front-end; composes with robust or deblurring 3DGS trainers.</p></div>
+          <div class="pill"><h4>Graceful degradation</h4><p>As clean views grow scarce, trades a little coverage for quality instead of selecting junk.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Qualitative ================= -->
+<section class="section hero is-small">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column">
+        <h2 class="title is-3 section-title">Qualitative Results</h2>
+        <div class="figure" style="margin-top:1.25rem;">
+          <img src="static/images/qualitative.jpg" alt="Held-out novel views: Random, FVS, QG-Cover and ground truth with error maps">
+        </div>
+        <p class="caption">
+          Held-out novel views on the same test frame under controlled corruption (<i>kitchen</i>, mip-NeRF-360 with 30% synthetic junk; top)
+          and on a genuine casual capture (DL3DV/0a4853, no synthetic corruption; bottom), at the K=40% tier.
+          Columns: Random, FVS, QG-Cover (ours), ground truth. Error rows show per-pixel |render − GT| (darker is better).
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Quantitative ================= -->
+<section class="section hero is-small">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column">
+        <h2 class="title is-3 section-title">Quantitative Results</h2>
+
+        <h3 class="title is-5" style="margin-top:1.5rem;">Matched-budget comparison (PSNR dB ↑, dataset means)</h3>
+        <div class="table-wrap">
+          <table class="table res is-bordered is-narrow">
+            <thead>
+              <tr><th rowspan="2">Dataset</th><th colspan="4">K = 40%</th><th colspan="4">K = 60%</th><th colspan="4">K = 80%</th><th rowspan="2">K = 100%</th></tr>
+              <tr><th>Rnd</th><th>FVS</th><th>D+C</th><th>QG</th><th>Rnd</th><th>FVS</th><th>D+C</th><th>QG</th><th>Rnd</th><th>FVS</th><th>D+C</th><th>QG</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>mip-NeRF-360 (7, 30% junk)</td><td>24.00</td><td>24.33</td><td class="second">26.02</td><td class="best">26.28</td><td>25.00</td><td>25.04</td><td class="second">25.68</td><td class="best">26.79</td><td>25.09</td><td class="second">25.46</td><td>25.42</td><td class="best">26.29</td><td>25.21</td></tr>
+              <tr><td>nerfbusters (12, real)</td><td>25.56</td><td>26.03</td><td class="second">26.51</td><td class="best">26.71</td><td>25.85</td><td>25.95</td><td class="second">26.33</td><td class="best">26.54</td><td>25.96</td><td>25.99</td><td class="second">26.13</td><td class="best">26.16</td><td>26.02</td></tr>
+              <tr><td>DL3DV (14, real)</td><td>27.59</td><td>28.16</td><td class="best">28.56</td><td class="second">28.45</td><td>27.98</td><td>28.14</td><td class="second">28.42</td><td class="best">28.47</td><td>28.03</td><td class="second">28.11</td><td>28.03</td><td class="best">28.31</td><td>28.18</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="caption">K is a percentage of each scene's own candidate pool. Gold / grey: best / second-best of FVS, D+C (Detect+Cover) and QG (QG-Cover).
+          At K=100% every selector takes the entire pool. Per-scene results for all 33 scenes are in the paper.</p>
+
+        <h3 class="title is-5" style="margin-top:2.25rem;">Budget accounting on mip-NeRF-360 (PSNR dB ↑)</h3>
+        <div class="table-wrap">
+          <table class="table res is-bordered is-narrow">
+            <thead>
+              <tr><th rowspan="2">Scene</th><th colspan="2">Clean pool</th><th colspan="2">Corrupted pool (30% junk)</th><th colspan="2">Cost / gain</th></tr>
+              <tr><th>all frames<br><small>ceiling</small></th><th>uniform 40%</th><th>all frames</th><th>QG-Cover 40%</th><th>coverage cost</th><th>gating gain</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>room</td><td>30.76</td><td>29.60</td><td>27.15</td><td>29.48</td><td>−1.17</td><td>+2.32</td></tr>
+              <tr><td>counter</td><td>27.54</td><td>26.93</td><td>25.76</td><td>25.77</td><td>−0.61</td><td>+0.00</td></tr>
+              <tr><td>kitchen</td><td>29.89</td><td>29.28</td><td>25.44</td><td>29.07</td><td>−0.61</td><td>+3.62</td></tr>
+              <tr><td>bonsai</td><td>30.06</td><td>30.02</td><td>26.84</td><td>28.66</td><td>−0.05</td><td>+1.82</td></tr>
+              <tr><td>garden</td><td>26.72</td><td>25.72</td><td>24.44</td><td>25.03</td><td>−1.00</td><td>+0.59</td></tr>
+              <tr><td>bicycle</td><td>23.50</td><td>22.63</td><td>22.34</td><td>22.82</td><td>−0.87</td><td>+0.48</td></tr>
+              <tr><td>stump</td><td>26.48</td><td>23.85</td><td>24.46</td><td>23.16</td><td>−2.63</td><td>−1.30</td></tr>
+              <tr class="mean-row"><td>mean</td><td>27.85</td><td>26.86</td><td>25.21</td><td>26.28</td><td>−0.99</td><td>+1.08</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="caption">Dropping 60% of a clean pool costs only −0.99 dB (casual capture is redundant), while spending the same 40% budget
+          through our gate on the corrupted pool buys +1.08 dB. That asymmetry is why a well-chosen 40% beats the whole corrupted pool&mdash;yet
+          it still trails the clean-pool ceiling by 1.57 dB: view selection is damage control, not a way to manufacture information.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BibTeX ================= -->
+<section class="section" id="bibtex">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-3 section-title has-text-centered">BibTeX</h2>
+<pre class="bib"><code>@InProceedings{kim2027qgcover,
+    author    = {Kim, Daewoon and Kim, I-gil},
+    title     = {QG-Cover: Quality-Gated Coverage for 3D Gaussian Splatting from Casual Captures},
+    booktitle = {Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision (WACV)},
+    year      = {2027}
+}</code></pre>
+  </div>
+</section>
+
+<!-- ================= Acknowledgements ================= -->
+<section class="hero is-small">
+  <div class="container is-max-desktop content" style="padding: 0 1.5rem 1rem;">
+    <h2 class="title is-4 has-text-centered">Acknowledgements</h2>
+    <p>
+      This work was supported by Institute of Information &amp; communications Technology Planning &amp; Evaluation (IITP) grant funded by
+      the Korea government (MSIT) (No. RS-2026-25522885, Development of a World Foundation Model for Training and Deployment of Physical AI Systems).
+    </p>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container has-text-centered" style="font-size:.85rem;color:#64748b;">
+    This page is adapted from the <a href="https://github.com/nerfies/nerfies.github.io" target="_blank">Nerfies</a> project page template,
+    licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>.
+  </div>
+</footer>
+
+</body>
+</html>
